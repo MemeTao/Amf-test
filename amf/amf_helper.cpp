@@ -294,9 +294,17 @@ bool AmfModule::doInit() {
         amf_debug->AssertsEnable(false);
     }
 
-#ifndef _DEBUG
-    amf_trace->EnableWriter(AMF_TRACE_WRITER_DEBUG_OUTPUT, false);
+#ifndef _NDEBUG
+    amf_int32 traceLevel = AMF_TRACE_TRACE;
+    amf_trace->SetGlobalLevel(traceLevel);
+
     amf_trace->EnableWriter(AMF_TRACE_WRITER_CONSOLE, false);
+
+    amf_trace->EnableWriter(AMF_TRACE_WRITER_DEBUG_OUTPUT, true);
+    amf_trace->SetWriterLevel(AMF_TRACE_WRITER_DEBUG_OUTPUT, traceLevel);
+
+    amf_trace->EnableWriter(AMF_TRACE_WRITER_FILE, true);
+    amf_trace->SetWriterLevel(AMF_TRACE_WRITER_FILE, traceLevel);
 #endif
     amf::AMFContextPtr amf_context;
     if (factory->CreateContext(&amf_context) != AMF_OK || !InitAmfContextWithD3d11(amf_context)) {

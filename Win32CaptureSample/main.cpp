@@ -73,11 +73,14 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     // Message pump
     MSG msg = {};
     auto t1 = cur_time();
+    auto key_frame_time = cur_time();
+    auto bitrate_update_time = cur_time();
     while (GetMessageW(&msg, nullptr, 0, 0))
     {
         TranslateMessage(&msg);
         DispatchMessageW(&msg);
         const uint32_t frame_rate = 15;
+        const uint32_t bitrate_kbps = 1000;
         if (cur_time() - t1 < (1000 * 1000 / frame_rate)) {
             continue;
         }
@@ -89,7 +92,7 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
         }
         if (!amf_encoder || config.width != frame.width || config.height != frame.height) {
             amf_encoder = std::make_unique<AmfEncoder>();
-            config.bitrate_kbps = 1000;
+            config.bitrate_kbps = bitrate_kbps;
             config.width = frame.width;
             config.height = frame.height;
             config.qp_min = 20;
@@ -102,7 +105,21 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
             }
         }
         assert(amf_encoder);
-        amf_encoder->EncodeFrame(frame.data, frame.width, frame.height);
+        bool key_frame = false;
+        // key frame interval: 8 sec
+        if (cur_time() - key_frame_time >= 1000 * 1000 * 8) {
+            key_frame = true;
+            key_frame_time = cur_time();
+        }
+        // dynamic change bitrate: 1sec
+        if (cur_time() - bitrate_update_time >= 1000 * 1000) {
+            bitrate_update_time = cur_time();
+            static uint32_t round = 0;
+            //[700 - 1000] kbps,
+            const uint32_t new_bitrate = bitrate_kbps * 1000 - (round++ % 3) * 100 * 1000;
+            amf_encoder->RequestEncodingParametersChange(new_bitrate, frame_rate);
+        }
+        amf_encoder->EncodeFrame(frame.data, frame.width, frame.height, key_frame);
     }
     return util::ShutdownDispatcherQueueControllerAndWait(controller, static_cast<int>(msg.wParam));
 }

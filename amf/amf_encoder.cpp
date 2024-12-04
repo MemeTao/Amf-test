@@ -445,7 +445,8 @@ AmfEncoder::copyFrameToTexture(const std::vector<uint8_t>& data, uint32_t width,
     return gpu_texture;
 }
 
-int32_t AmfEncoder::EncodeFrame(const std::vector<uint8_t>& data, uint32_t width, uint32_t height) {
+int32_t AmfEncoder::EncodeFrame(const std::vector<uint8_t>& data, uint32_t width, uint32_t height,
+                                bool force_key) {
     auto texture = copyFrameToTexture(data, width, height);
     if (!texture) {
         return -1;
@@ -455,6 +456,13 @@ int32_t AmfEncoder::EncodeFrame(const std::vector<uint8_t>& data, uint32_t width
     if (res != AMF_OK) {
         LOG_ERROR("CreateSurfaceFromDX11Native failed, res:%d", res);
         return -1;
+    }
+    if (force_key) {
+        LOG_INFO("Request key frame");
+        if (!triggleKeyFrame(amf_surf)) {
+            LOG_INFO("Requeset IDR failed, res:%u", res);
+            return -1;
+        }
     }
     {
         std::lock_guard<std::mutex> lock(texture_mtx_);
@@ -487,7 +495,6 @@ int32_t AmfEncoder::EncodeFrame(const std::vector<uint8_t>& data, uint32_t width
         return -1;
     }
     input_output_recorder_.addInput(help_ctx_.frame_rate, cur_time());
-
     encoded_pkt_ = nullptr;
     res = amf_encoder_->QueryOutput(&encoded_pkt_);
     if (res != AMF_REPEAT && res != AMF_OK) {
@@ -521,6 +528,7 @@ bool AmfEncoder::triggleKeyFrame(amf::AMFSurfacePtr& amf_surf) {
             AMF_VIDEO_ENCODER_PICTURE_TYPE_ENUM::AMF_VIDEO_ENCODER_PICTURE_TYPE_IDR);
         amf_surf->SetProperty(AMF_VIDEO_ENCODER_INSERT_SPS, true);
         amf_surf->SetProperty(AMF_VIDEO_ENCODER_INSERT_PPS, true);
+        // Limit Keyframe QP range to avoid 'Vague'
         LimitQPForScc();
     }
     else if (help_ctx_.codec == amf::amf_codec_type::HEVC) {
@@ -578,7 +586,7 @@ bool AmfEncoder::onImageEncoded(amf::AMFDataPtr& pkt) {
         RecoverQPRange();
     }
     size_t length = ((amf::AMFBufferPtr)pkt)->GetSize();
-    LOG_INFO("Frame %u, %s, QP: %u, size: %u B, Target:%u bps, %u B, %u FPS",
+    LOG_INFO("Frame %u, %s, QP: %u, size: %u B, Target:%u kbps, %u B, %u FPS",
              help_ctx_.encoded_count, (key_frame ? "I" : "P"), average_qp, length,
              help_ctx_.current_bitrate / 1000, help_ctx_.current_bitrate / help_ctx_.frame_rate / 8,
              help_ctx_.frame_rate);
@@ -630,7 +638,7 @@ int32_t AmfEncoder::RequestEncodingParametersChange(uint32_t bitrate, uint32_t f
     if (help_ctx_.target_fps == frame_rate && help_ctx_.target_bitrate == bitrate) {
         return 0;
     }
-    LOG_INFO("Request encoder paramesters: %ukbps %uFPS", bitrate / 1024, frame_rate);
+    LOG_INFO("Request encoder paramesters: %ukbps %uFPS", bitrate / 1000, frame_rate);
     help_ctx_.target_bitrate = bitrate;
     help_ctx_.target_fps = frame_rate;
     applyFrameRateAndBitrate();

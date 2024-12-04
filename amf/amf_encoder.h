@@ -35,7 +35,10 @@ public:
     // VideoEncodeAccelerator implementation.
     bool Initialize(const Config& config);
 
-    int32_t EncodeFrame(const std::vector<uint8_t>& data, uint32_t widht, uint32_t height);
+    int32_t EncodeFrame(const std::vector<uint8_t>& data, uint32_t widht, uint32_t height,
+                        bool force_key);
+
+    int32_t RequestEncodingParametersChange(uint32_t bitrate, uint32_t framerate);
 
 private:
     void uninit();
@@ -77,8 +80,6 @@ private:
     bool applyAV1Parameters(const Config& config);
 
     bool triggleKeyFrame(amf::AMFSurfacePtr& surface);
-
-    int32_t RequestEncodingParametersChange(uint32_t bitrate, uint32_t framerate);
 
 private:
     uint64_t luid_ = 0;
