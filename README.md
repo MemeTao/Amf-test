@@ -18,7 +18,7 @@ Output Files:
 * Win32CaptureSample.exe.log: amf debug log
  ![image](https://github.com/user-attachments/assets/57ffbde9-7664-4af3-afb6-9d3286fa07cf)
 
-```shell```
+```shell
  //Statistics for each frame
 Frame 0, P, QP: 36, size: 2263 B, Target:900 kbps, 7500 B, 15 FPS 
 
