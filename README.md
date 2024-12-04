@@ -7,13 +7,11 @@ This sample requires the [Windows 11 SDK (10.0.22000.194)](https://developer.mic
 ## how to run
 * First, compile project using vs2022
 * Second, open test-video.mp4, try to adjust the player size to 1280X720 (The closer the better)
-* Double click Win32CaptureSample\x64\Debug\Win32CaptureSample.exe and select the video player window by click 'windows'
-
-![image](https://github.com/user-attachments/assets/3508347b-61af-487c-90ce-bfdde3544665)
-
+* Double click Win32CaptureSample\x64\Debug\Win32CaptureSample.exe and select the video player window by click 'windows' drop-down box
+![image](https://github.com/user-attachments/assets/9a159a93-e60a-4076-a735-11ed2a4fb0a6)
 And it will start running：
+![image](https://github.com/user-attachments/assets/46a42aec-d68c-41d5-b3a3-14de36017859)
 
-![image](https://github.com/user-attachments/assets/dff1b7b7-c68f-4f36-a880-2ff2b244088f)
 
 Output Files:
 * amf-test.log: Print QP and Bitrate
