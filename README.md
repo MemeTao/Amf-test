@@ -26,9 +26,8 @@ Frame 0, P, QP: 36, size: 2263 B, Target:900 kbps, 7500 B, 15 FPS
  //Output every 5 seconds 
 [{15|13, 815|575kbps, 2513Byte, 39|40}{15|14, 957|409kbps, 756Byte, 30|33}{15|13, 923|588kbps, 4622Byte, 39|40}{15|14, 829|592kbps, 4097Byte, 39|40}{15|14, 943|357kbps, 1075Byte, 37|40}]
 ```
-## Help tips
-
-* 0. Initialize amf encoder using {720p, qp:20-40, 1mbps}
-* 1. The program will capture the content of the selected window and convert it to i420 format from bgra texture
-* 2. Deliver i420 data to amf encoder
-* 3. Dynamic change target bitrate and request keyframe.
+## program
+* Initialize amf encoder using {720p, qp:20-40, 1mbps}
+* The program will capture the content of the selected window and convert it to i420 format from bgra texture
+* Deliver i420 data to amf encoder
+* Dynamic change target bitrate and request keyframe.
