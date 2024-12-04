@@ -2,6 +2,7 @@
 * vs2022
 * Amd gpu
 * win11 (win10 maybe ok)
+  
 This sample requires the [Windows 11 SDK (10.0.22000.194)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/) and [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) to compile. Neither are required to run the sample once you have a binary. The minimum verison of Windows 10 required to run the sample is build 17134.
 
 ## how to run
