@@ -17,7 +17,8 @@ And it will start running：
 Output Files:
 * *amf-test.log*: Print QP and Bitrate
 * *Win32CaptureSample.exe.log*: Amf debug log
- ![image](https://github.com/user-attachments/assets/57ffbde9-7664-4af3-afb6-9d3286fa07cf)
+![image](https://github.com/user-attachments/assets/8225b6eb-d93d-4c61-a16e-7142f5adf362)
+
 
 ```shell
  //Statistics for each frame
