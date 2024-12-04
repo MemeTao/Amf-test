@@ -33,3 +33,52 @@ Frame 0, P, QP: 36, size: 2263 B, Target:900 kbps, 7500 B, 15 FPS
 * The program will capture the content of the selected window and convert it to i420 format from bgra texture
 * Deliver i420 data to amf encoder
 * Dynamic change target bitrate and request keyframe.
+
+## H264 Parameters
+
+```c++
+bool AmfEncoder::applyH264Parameters(const Config& config) {
+    assert(amf_encoder_);
+    uint32_t width = config.width;
+    uint32_t height = config.height;
+    int64_t frame_rate = config.framerate;
+    auto rc = AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_CBR;
+    set_avc_property(amf_encoder_, USAGE, AMF_VIDEO_ENCODER_USAGE_TRANSCODING);
+    set_avc_property(amf_encoder_, RATE_CONTROL_METHOD, rc);
+    set_avc_property(amf_encoder_, FRAMESIZE, AMFConstructSize(width, height));
+    set_avc_property(amf_encoder_, B_PIC_PATTERN, 0);
+    set_avc_property(amf_encoder_, LOWLATENCY_MODE, true);
+    set_avc_property(amf_encoder_, MIN_QP, config.qp_min);
+    set_avc_property(amf_encoder_, MAX_QP, config.qp_max);
+    set_avc_property(amf_encoder_, ENFORCE_HRD, true);
+    set_avc_property(amf_encoder_, IDR_PERIOD, config.framerate);
+    set_avc_property(amf_encoder_, QUERY_TIMEOUT, 200);
+    set_avc_property(amf_encoder_, OUTPUT_COLOR_PROFILE, AMF_VIDEO_CONVERTER_COLOR_PROFILE_709);
+    set_avc_property(amf_encoder_, OUTPUT_TRANSFER_CHARACTERISTIC,
+                     AMF_COLOR_TRANSFER_CHARACTERISTIC_BT709);
+    set_avc_property(amf_encoder_, OUTPUT_COLOR_PRIMARIES, AMF_COLOR_PRIMARIES_BT709);
+    set_avc_property(amf_encoder_, FULL_RANGE_COLOR, false);
+    set_avc_property(amf_encoder_, CABAC_ENABLE, AMF_VIDEO_ENCODER_UNDEFINED);
+    if (rc != AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_CONSTANT_QP) {
+        set_avc_property(amf_encoder_, ENABLE_VBAQ, true);
+    }
+    uint32_t bitrate = config.bitrate_kbps * 1000;
+    set_avc_property(amf_encoder_, TARGET_BITRATE, bitrate);
+    set_avc_property(amf_encoder_, PEAK_BITRATE, bitrate * 1.2);
+    // set_avc_property(amf_encoder_, VBV_BUFFER_SIZE, 0);
+    set_avc_property(amf_encoder_, PROFILE, AMF_VIDEO_ENCODER_PROFILE_MAIN);
+    // set_avc_property(amf_encoder_, PREENCODE_ENABLE, true);
+    help_ctx_.rc = rc;
+    help_ctx_.frame_rate = frame_rate;
+    help_ctx_.target_fps = frame_rate;
+    help_ctx_.width = width;
+    help_ctx_.height = height;
+    help_ctx_.codec = amf::amf_codec_type::AVC;
+    help_ctx_.current_bitrate = bitrate;
+    help_ctx_.target_bitrate = bitrate;
+    help_ctx_.min_qp = config.qp_min;
+    help_ctx_.max_qp = config.qp_max;
+    return true;
+}
+
+```
