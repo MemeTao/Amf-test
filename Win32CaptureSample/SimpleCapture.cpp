@@ -1,6 +1,13 @@
 #include "pch.h"
 #include "SimpleCapture.h"
 
+#include "../amf/amf_helper.h"
+
+#define LOG_DEBUG(...) amf::log(0, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...) amf::log(1, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...) amf::log(2, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) amf::log(3, __FILE__, __LINE__, __VA_ARGS__)
+
 namespace winrt
 {
     using namespace Windows::Foundation;
@@ -125,6 +132,7 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
             desc.Usage = D3D11_USAGE_DEFAULT;
             auto hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_);
             if (hr != S_OK) {
+                LOG_ERROR("Failed to call CreateTexture2D, hr:%0x4", hr);
                 return;
             }
             texture_bk_->GetDesc(&desc_bk_);
@@ -133,6 +141,7 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
             desc.Height = (desc.Height + 1) / 2 * 2;
             hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_nv12_);
             if (hr != S_OK) {
+                LOG_ERROR("Failed to call CreateTexture2D, hr:%0x4", hr);
                 return;
             }
             desc.BindFlags = 0;
@@ -141,11 +150,13 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
             desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
             hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_nv12_cpu_access_);
             if (hr != S_OK) {
+                LOG_ERROR("Failed to call CreateTexture2D, hr:%0x4", hr);
                 return;
             }
             nv12_convertor_ = std::make_unique<amf::NV12Convertor>();
             if (!nv12_convertor_->init(d3dDevice.get(), desc.Width, desc.Height)) {
                 nv12_convertor_ = nullptr;
+                LOG_ERROR("Failed to initialize nv12 convertor");
                 return;
             }
         }
@@ -182,6 +193,7 @@ bool SimpleCapture::GetFrame(Nv12Frame* output) {
     D3D11_MAPPED_SUBRESOURCE resource;
     auto hr = m_d3dContext->Map(texture_bk_nv12_cpu_access_.Get(), 0, D3D11_MAP_WRITE, 0, &resource);
     if (FAILED(hr)) {
+        LOG_ERROR("Failed to map textuer, hr:%0x", hr);
         return false;
     }
     for (int i = 0; i < desc.Height * 3 / 2; i++) {

@@ -4,6 +4,11 @@
 
 #include "../amf/amf_encoder.h"
 
+#define LOG_DEBUG(...) amf::log(0, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_INFO(...) amf::log(1, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_WARN(...) amf::log(2, __FILE__, __LINE__, __VA_ARGS__)
+#define LOG_ERROR(...) amf::log(3, __FILE__, __LINE__, __VA_ARGS__)
+
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 namespace winrt
@@ -101,6 +106,7 @@ int __stdcall WinMain(HINSTANCE, HINSTANCE, PSTR, int)
             if (!amf_encoder->Initialize(config)) {
                 amf_encoder = nullptr;
                 config.width = 0;
+                LOG_ERROR("Failed to initialize amf-encoder");
                 continue;
             }
         }
