@@ -587,7 +587,7 @@ bool AmfEncoder::onImageEncoded(amf::AMFDataPtr& pkt) {
     }
     size_t length = ((amf::AMFBufferPtr)pkt)->GetSize();
     LOG_INFO("Frame %u, %s, QP: %u, size: %u B, Target:%u kbps, %u B, %u FPS",
-             help_ctx_.encoded_count, (key_frame ? "I" : "P"), average_qp, length,
+             help_ctx_.encoded_count++, (key_frame ? "I" : "P"), average_qp, length,
              help_ctx_.current_bitrate / 1000, help_ctx_.current_bitrate / help_ctx_.frame_rate / 8,
              help_ctx_.frame_rate);
     // record qp and actual bitrate
