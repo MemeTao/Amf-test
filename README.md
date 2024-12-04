@@ -37,6 +37,15 @@ Frame 0, P, QP: 36, size: 2263 B, Target:900 kbps, 7500 B, 15 FPS
 ## H264 Parameters
 
 ```c++
+struct Config {
+    uint32_t width = 0;        // 1280
+    uint32_t height = 0;       // 720
+    uint32_t qp_min = 20;
+    uint32_t qp_max = 40;
+    int framerate = 0;           // 15
+    uint32_t bitrate_kbps = 0; // 1000 kbps
+};
+
 bool AmfEncoder::applyH264Parameters(const Config& config) {
     assert(amf_encoder_);
     uint32_t width = config.width;
