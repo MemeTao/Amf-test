@@ -23,6 +23,16 @@ public:
 
     void StopCapture();
 
+    bool GetFrame(Nv12Frame& frame) {
+        if (!m_capture) {
+            return false;
+        }
+        return m_capture->GetFrame(&frame);
+    }
+    SimpleCapture* GetCapturer() {
+        return m_capture.get();
+    }
+
 private:
     void StartCaptureFromItem(winrt::Windows::Graphics::Capture::GraphicsCaptureItem item);
 

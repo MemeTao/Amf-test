@@ -1,5 +1,18 @@
 #pragma once
 
+#include <memory>
+
+#include <wrl/client.h>
+
+#include "../amf/amf_helper.h"
+
+struct Nv12Frame {
+    uint32_t width = 0;
+    uint32_t stride = 0;
+    uint32_t height = 0;
+    std::vector<uint8_t> data;
+};
+
 class SimpleCapture
 {
 public:
@@ -14,7 +27,7 @@ public:
         winrt::Windows::UI::Composition::Compositor const& compositor);
 
     bool IsCursorEnabled() { CheckClosed(); return m_session.IsCursorCaptureEnabled(); }
-	void IsCursorEnabled(bool value) { CheckClosed(); m_session.IsCursorCaptureEnabled(value); }
+    void IsCursorEnabled(bool value) { CheckClosed(); m_session.IsCursorCaptureEnabled(value); }
     bool IsBorderRequired() { CheckClosed(); return m_session.IsBorderRequired(); }
     void IsBorderRequired(bool value) { CheckClosed(); m_session.IsBorderRequired(value); }
     winrt::Windows::Graphics::Capture::GraphicsCaptureItem CaptureItem() { return m_item; }
@@ -27,6 +40,8 @@ public:
     }
 
     void Close();
+
+    bool  GetFrame(Nv12Frame* frame);
 
 private:
     void OnFrameArrived(
@@ -60,4 +75,10 @@ private:
 
     std::atomic<bool> m_closed = false;
     std::atomic<bool> m_captureNextImage = false;
+
+    D3D11_TEXTURE2D_DESC desc_bk_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_bk_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_bk_nv12_;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> texture_bk_nv12_cpu_access_;
+    std::unique_ptr<amf::NV12Convertor> nv12_convertor_;
 };

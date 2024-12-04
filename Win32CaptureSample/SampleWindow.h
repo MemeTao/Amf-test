@@ -14,6 +14,13 @@ struct SampleWindow : robmikh::common::desktop::DesktopWindow<SampleWindow>
 
     LRESULT MessageHandler(UINT const message, WPARAM const wparam, LPARAM const lparam);
 
+    SimpleCapture* GetCapturer() {
+        if (!m_app) {
+            return nullptr;
+        }
+        return m_app->GetCapturer();
+    }
+
 private:
     struct PixelFormatData
     {
@@ -36,7 +43,7 @@ private:
     void StopCapture();
     void OnCaptureItemClosed(winrt::Windows::Graphics::Capture::GraphicsCaptureItem const&, winrt::Windows::Foundation::IInspectable const&);
     void OnCaptureStarted(
-        winrt::Windows::Graphics::Capture::GraphicsCaptureItem const& item, 
+        winrt::Windows::Graphics::Capture::GraphicsCaptureItem const& item,
         CaptureType captureType);
 
 private:

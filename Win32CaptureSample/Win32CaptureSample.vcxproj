@@ -80,6 +80,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +113,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <PreprocessorDefinitions>_UNICODE;UNICODE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -140,6 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\amf\amf_encoder.cpp" />
+    <ClCompile Include="..\amf\amf_helper.cpp" />
+    <ClCompile Include="..\amf\nv12_convert.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CaptureSnapshot.cpp" />
     <ClCompile Include="main.cpp" />
@@ -150,6 +155,48 @@
     <ClCompile Include="WindowList.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\amf\amf_encoder.h" />
+    <ClInclude Include="..\amf\amf_helper.h" />
+    <ClInclude Include="..\amf\components\ChromaKey.h" />
+    <ClInclude Include="..\amf\components\ColorSpace.h" />
+    <ClInclude Include="..\amf\components\Component.h" />
+    <ClInclude Include="..\amf\components\ComponentCaps.h" />
+    <ClInclude Include="..\amf\components\HQScaler.h" />
+    <ClInclude Include="..\amf\components\MediaSource.h" />
+    <ClInclude Include="..\amf\components\PreAnalysis.h" />
+    <ClInclude Include="..\amf\components\PreProcessing.h" />
+    <ClInclude Include="..\amf\components\SupportedCodecs.h" />
+    <ClInclude Include="..\amf\components\VideoConverter.h" />
+    <ClInclude Include="..\amf\components\VideoDecoderUVD.h" />
+    <ClInclude Include="..\amf\components\VideoEncoderAV1.h" />
+    <ClInclude Include="..\amf\components\VideoEncoderHEVC.h" />
+    <ClInclude Include="..\amf\components\VideoEncoderVCE.h" />
+    <ClInclude Include="..\amf\components\VideoStitch.h" />
+    <ClInclude Include="..\amf\components\VQEnhancer.h" />
+    <ClInclude Include="..\amf\components\ZCamLiveStream.h" />
+    <ClInclude Include="..\amf\core\AudioBuffer.h" />
+    <ClInclude Include="..\amf\core\Buffer.h" />
+    <ClInclude Include="..\amf\core\Compute.h" />
+    <ClInclude Include="..\amf\core\ComputeFactory.h" />
+    <ClInclude Include="..\amf\core\Context.h" />
+    <ClInclude Include="..\amf\core\CurrentTime.h" />
+    <ClInclude Include="..\amf\core\D3D12AMF.h" />
+    <ClInclude Include="..\amf\core\Data.h" />
+    <ClInclude Include="..\amf\core\Debug.h" />
+    <ClInclude Include="..\amf\core\Dump.h" />
+    <ClInclude Include="..\amf\core\Factory.h" />
+    <ClInclude Include="..\amf\core\Interface.h" />
+    <ClInclude Include="..\amf\core\Plane.h" />
+    <ClInclude Include="..\amf\core\Platform.h" />
+    <ClInclude Include="..\amf\core\PropertyStorage.h" />
+    <ClInclude Include="..\amf\core\PropertyStorageEx.h" />
+    <ClInclude Include="..\amf\core\Result.h" />
+    <ClInclude Include="..\amf\core\Surface.h" />
+    <ClInclude Include="..\amf\core\Trace.h" />
+    <ClInclude Include="..\amf\core\Variant.h" />
+    <ClInclude Include="..\amf\core\Version.h" />
+    <ClInclude Include="..\amf\core\VulkanAMF.h" />
+    <ClInclude Include="..\amf\nv12_convert.h" />
     <ClInclude Include="App.h" />
     <ClInclude Include="CaptureSnapshot.h" />
     <ClInclude Include="MonitorList.h" />

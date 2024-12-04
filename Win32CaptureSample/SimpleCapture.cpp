@@ -108,7 +108,6 @@ bool SimpleCapture::TryUpdatePixelFormat()
 void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& sender, winrt::IInspectable const&)
 {
     auto swapChainResizedToFrame = false;
-
     {
         auto frame = sender.TryGetNextFrame();
         swapChainResizedToFrame = TryResizeSwapChain(frame);
@@ -116,8 +115,46 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
         winrt::com_ptr<ID3D11Texture2D> backBuffer;
         winrt::check_hresult(m_swapChain->GetBuffer(0, winrt::guid_of<ID3D11Texture2D>(), backBuffer.put_void()));
         auto surfaceTexture = GetDXGIInterfaceFromObject<ID3D11Texture2D>(frame.Surface());
-        // copy surfaceTexture to backBuffer
+        D3D11_TEXTURE2D_DESC desc;
+        surfaceTexture->GetDesc(&desc);
+        if (!texture_bk_ || desc_bk_.Width != desc.Width || desc_bk_.Height != desc.Height) {
+            auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
+            desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+            desc.MiscFlags = 0;
+            desc.CPUAccessFlags = 0;
+            desc.Usage = D3D11_USAGE_DEFAULT;
+            auto hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_);
+            if (hr != S_OK) {
+                return;
+            }
+            texture_bk_->GetDesc(&desc_bk_);
+            desc.Format = DXGI_FORMAT_NV12;
+            desc.Width = (desc.Width + 1) / 2 * 2;
+            desc.Height = (desc.Height + 1) / 2 * 2;
+            hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_nv12_);
+            if (hr != S_OK) {
+                return;
+            }
+            desc.BindFlags = 0;
+            desc.MiscFlags = 0;
+            desc.Usage = D3D11_USAGE_STAGING;
+            desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+            hr = d3dDevice->CreateTexture2D(&desc, nullptr, &texture_bk_nv12_cpu_access_);
+            if (hr != S_OK) {
+                return;
+            }
+            nv12_convertor_ = std::make_unique<amf::NV12Convertor>();
+            if (!nv12_convertor_->init(d3dDevice.get(), desc.Width, desc.Height)) {
+                nv12_convertor_ = nullptr;
+                return;
+            }
+        }
         m_d3dContext->CopyResource(backBuffer.get(), surfaceTexture.get());
+        // Convert bgra to nv12
+        m_d3dContext->CopyResource(texture_bk_.Get(), surfaceTexture.get());
+        if (nv12_convertor_) {
+            nv12_convertor_->convert(texture_bk_, texture_bk_nv12_);
+        }
     }
 
     DXGI_PRESENT_PARAMETERS presentParameters{};
@@ -129,4 +166,31 @@ void SimpleCapture::OnFrameArrived(winrt::Direct3D11CaptureFramePool const& send
     {
         m_framePool.Recreate(m_device, m_pixelFormat, 2, m_lastSize);
     }
+}
+
+
+bool SimpleCapture::GetFrame(Nv12Frame* output) {
+    if (!texture_bk_nv12_ || !nv12_convertor_) {
+        return false;
+    }
+    m_d3dContext->CopyResource(texture_bk_nv12_cpu_access_.Get(), texture_bk_nv12_.Get());
+    auto d3dDevice = GetDXGIInterfaceFromObject<ID3D11Device>(m_device);
+    //SaveNv12Stream(d3dDevice.get(), texture_bk_nv12_cpu_access_.Get(), "nv12capture.nv12");
+    D3D11_TEXTURE2D_DESC desc;
+    texture_bk_nv12_cpu_access_->GetDesc(&desc);
+    output->data.resize(desc.Width * desc.Height * 3 / 2);
+    D3D11_MAPPED_SUBRESOURCE resource;
+    auto hr = m_d3dContext->Map(texture_bk_nv12_cpu_access_.Get(), 0, D3D11_MAP_WRITE, 0, &resource);
+    if (FAILED(hr)) {
+        return false;
+    }
+    for (int i = 0; i < desc.Height * 3 / 2; i++) {
+        memcpy((uint8_t*)output->data.data() + i * desc.Width, (uint8_t*)resource.pData + i * resource.RowPitch,
+            desc.Width);
+    }
+    m_d3dContext->Unmap(texture_bk_nv12_.Get(), 0);
+    output->width = desc.Width;
+    output->height = desc.Height;
+    output->stride = output->width;
+    return true;
 }
