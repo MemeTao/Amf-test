@@ -5,17 +5,17 @@
 This sample requires the [Windows 11 SDK (10.0.22000.194)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/) and [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) to compile. Neither are required to run the sample once you have a binary. The minimum verison of Windows 10 required to run the sample is build 17134.
 
 ## how to run
-* First, compile project using vs2022
-* Second, open test-video.mp4, try to adjust the player size to 1280X720 (The closer the better)
-* Double click Win32CaptureSample\x64\Debug\Win32CaptureSample.exe and select the video player window by click 'windows' drop-down box
+* First, compile project using vs2022 (double click Win32CaptureSample.sln)
+* Second, open test-video.mp4, try to adjust the video player size to 1280X720 (The closer the better)
+* Double click Win32CaptureSample.exe and select the video player window by click 'windows' drop-down box
 ![image](https://github.com/user-attachments/assets/9a159a93-e60a-4076-a735-11ed2a4fb0a6)
 And it will start running：
 ![image](https://github.com/user-attachments/assets/46a42aec-d68c-41d5-b3a3-14de36017859)
 
 
 Output Files:
-* amf-test.log: Print QP and Bitrate
-* Win32CaptureSample.exe.log: amf debug log
+* *amf-test.log*: Print QP and Bitrate
+* *Win32CaptureSample.exe.log*: Amf debug log
  ![image](https://github.com/user-attachments/assets/57ffbde9-7664-4af3-afb6-9d3286fa07cf)
 
 ```shell
